@@ -5,7 +5,7 @@ subsample<-1000
 binVector<-c(5:119)
 
 #Set working directory to file directory with data
-setwd("D:/ImageJ Macros/Fleiszig Lab/Bacterial motility quantification/Protocol paper subset/Output2")
+setwd("D:/Output")
 
 #Load the frequency table
 freqMatrix<-read.table("Sample histogram.csv", header = TRUE, sep = ",")
