@@ -5,7 +5,7 @@ fileExt = ".nd2"; //What file extension to look for in the input directory
 //Choose the input and output directories
 inputDirectory = getDirectory("Choose the input directory");
 fileList = getFileList(inputDirectory);
-outputDiretory = getDirectory("Choose the output directory");
+outputDirectory = getDirectory("Choose the output directory");
 
 minStdDev = getNumber("Enter the desired minimum standard deviation cutoff:", 5);
 maxStdDev = getNumber("Enter the desired maximum standard deviation cutoff:", 120);
@@ -93,15 +93,18 @@ for(a=0; a<fileList.length; a++){
 		for(b=0; b<dataArray.length; b++){
 			setResult(sampleID, b, dataArray[b]);
 		}
+		sampleCounter++;
 	}
 }
 
 //Save histogram
+close("*");
+updateResults();
+setBatchMode(false);
 saveAs("Results", outputDirectory + "Sample histogram.csv");
 selectWindow("Results");
 run("Close");
 selectWindow("Log");
 saveAs("Text", outputDirectory + "Histogram bins.csv");
 run("Close");
-close("*");
-setBatchMode(false);
+
