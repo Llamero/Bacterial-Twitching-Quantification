@@ -1,5 +1,7 @@
 close("*");
 
+fileExt = ".nd2"; //What file extension to look for in the input directory
+
 //Choose the input and output directories
 inputDirectory = getDirectory("Choose the input directory");
 fileList = getFileList(inputDirectory);
@@ -9,26 +11,28 @@ minStdDev = getNumber("Enter the desired minimum standard deviation cutoff:", 5)
 maxStdDev = getNumber("Enter the desired maximum standard deviation cutoff:", 120);
 nBins = maxStdDev - minStdDev;
 
-//Count the number of files in the directory that end in *.nd2
-nd2Count = 0;
+setBatchMode(true);
+
+//Count the number of files in the directory that end in the proper file ext
+extCount = 0;
 for(a=0; a<fileList.length; a++){
-	//open the file if it is a *.nd2 file
-	if(endsWith(fileList[a], ".nd2")){
-		nd2Count += 1;
+	//open the file if it has the right file ext
+	if(endsWith(fileList[a], fileExt)){
+		extCount += 1;
 	}
 }
 
 //Create an image to store the histograms
-newImage("Sample Histograms", "32-bit black", nBins, nd2Count, 1);
+newImage("Sample Histograms", "32-bit black", nBins, extCount, 1);
 
 //Initialize the sample counter
 sampleCounter = 0;
 
 for(a=0; a<fileList.length; a++){
-	//open the file if it is a *.nd2 file
-	if(endsWith(fileList[a], ".nd2")){
+	//open the file if it has the correct file ext
+	if(endsWith(fileList[a], fileExt)){
 		//Open the file and count up one on the sample counter
-		run("Bio-Formats Importer", "open=" + inputDirectory + fileList[a] + " autoscale color_mode=Default view=[Standard ImageJ] stack_order=Default");
+		run("Bio-Formats Importer", "open=[" + inputDirectory + fileList[a] + "] autoscale color_mode=Default view=[Standard ImageJ] stack_order=Default");
 		selectWindow(fileList[a]);
 		sampleCounter += 1;
 
@@ -65,7 +69,7 @@ for(a=0; a<fileList.length; a++){
 		for(b=0; b<counts.length; b++){
 			counts[b] = counts[b]/arraySum;
 		}
-		selectImage("Sample Histograms");
+		selectWindow("Sample Histograms");
 		for(b=0; b<counts.length; b++){
 			setPixel(b,(sampleCounter-1),counts[b]);
 		}
@@ -75,3 +79,29 @@ for(a=0; a<fileList.length; a++){
 	}
 }
 
+//Convert histogram to spreadsheet
+selectWindow("Sample Histograms");
+dataArray = newArray(nBins);
+sampleCounter = 0;
+for(a=0; a<fileList.length; a++){
+	if(endsWith(fileList[a], fileExt)){
+		sampleID = replace(fileList[a], fileExt, "");
+		selectWindow("Sample Histograms");
+		for(b=0; b<dataArray.length; b++){
+			dataArray[b] = getPixel(b,sampleCounter);
+		}
+		for(b=0; b<dataArray.length; b++){
+			setResult(sampleID, b, dataArray[b]);
+		}
+	}
+}
+
+//Save histogram
+saveAs("Results", outputDirectory + "Sample histogram.csv");
+selectWindow("Results");
+run("Close");
+selectWindow("Log");
+saveAs("Text", outputDirectory + "Histogram bins.csv");
+run("Close");
+close("*");
+setBatchMode(false);

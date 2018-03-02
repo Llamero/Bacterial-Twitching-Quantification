@@ -5,10 +5,11 @@ subsample<-1000
 binVector<-c(5:119)
 
 #Set working directory to file directory with data
-setwd("C:/Users/User/Desktop/Fleiszig Movies/Output/R analysis")
+setwd("D:/ImageJ Macros/Fleiszig Lab/Bacterial motility quantification/Protocol paper subset/Output2")
 
 #Load the frequency table
-freqMatrix<-read.table("Frequency table.csv", header = TRUE, sep = ",")
+freqMatrix<-read.table("Sample histogram.csv", header = TRUE, sep = ",")
+freqMatrix<-freqMatrix[,-1] #remove first column
 scaledMatrix<-round(freqMatrix*subsample, digits = 0)
 
 #Create a matrix to store sampled data
@@ -16,7 +17,7 @@ sampleMatrix<-matrix(data = 0, nrow = subsample, ncol = ncol(scaledMatrix))
 colnames(sampleMatrix)<-colnames(freqMatrix)
 
 #Convert each column in the frequecy table to a set of discrete measurements with count = subsample
-for(a in 1:ncol(scaledMatrix)){
+for(a in 1:ncol(sampleMatrix)){
 	#Initialize the sample vector and fill with 0
 	sampleVector<-numeric(subsample)
 	
@@ -35,7 +36,7 @@ for(a in 1:ncol(scaledMatrix)){
 
 #Create a notched box plot for each genotype
 #par(mar = c(15,6,3,3))
-boxplot(sampleMatrix, las = 2, names = c("0%","1.56%","3.13%","6.25%","12.50%","25%","50%","100%","-PilA"), notch = TRUE, outline = FALSE, ps = 1, cex.lab=1, cex.axis=1, cex.main=1, cex.sub=1, bty="n")
+boxplot(sampleMatrix, las = 2, names = colnames(freqMatrix), notch = TRUE, outline = FALSE, ps = 1, cex.lab=1, cex.axis=1, cex.main=1, cex.sub=1, bty="n")
 
 mtext("Relative Bacteria Mobility (a.u.)", side=2, line = 2.5, cex = 1)
 mtext("Percent tear concentration in PBS (v/v)", side=1, line = 4, cex = 1)
